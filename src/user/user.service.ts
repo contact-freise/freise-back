@@ -11,7 +11,7 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly appService: AppService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
@@ -47,8 +47,10 @@ export class UserService {
     userId: string,
     file: Express.Multer.File,
   ): Promise<{ downloadUrl: string }> {
+    const user = await this.userModel.findById({ _id: userId }).exec();
     file.filename = `${uuidv4()}-${file.originalname}`;
     const downloadUrl = await this.appService.updloadFile(file);
+    await this.appService.deleteFile(user.avatarUrl);
     await this.userModel
       .findByIdAndUpdate(userId, { avatarUrl: downloadUrl })
       .exec();

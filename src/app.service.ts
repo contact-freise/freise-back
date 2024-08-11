@@ -54,14 +54,19 @@ export class AppService {
   }
 
   deleteFile(file: string) {
+    if(!file) return;
     const storage = this.getAppStorage();
     const desertRef = ref(storage, file);
 
     deleteObject(desertRef)
       .then(() => {
-        console.log('File deleted successfully');
+        console.log(`File ${file} deleted successfully`);
       })
       .catch((error) => {
+        if(error.name === 'FirebaseError' && error.code === 'storage/object-not-found') {
+          console.log(`File ${file} does not exist`);
+          return;
+        }
         console.error('Uh-oh, an error occurred! ' + error);
         throw error;
       });
