@@ -32,3 +32,4 @@ env:
   - variable: NODE_ENV
     secret: projects/843883705433/secrets/NODE_ENV
   
+# firebase apphosting:secrets:grantaccess NODE_ENV --project 843883705433 --backend freise
