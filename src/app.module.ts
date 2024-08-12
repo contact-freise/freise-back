@@ -40,6 +40,7 @@ export class AppModule implements OnModuleInit {
     consumer
       .apply(AuthMiddleware)
       .exclude(
+        { path: '', method: RequestMethod.GET },
         { path: 'sse', method: RequestMethod.ALL },
         { path: 'user', method: RequestMethod.POST },
         { path: 'user/login', method: RequestMethod.POST },

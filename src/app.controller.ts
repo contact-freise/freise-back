@@ -4,8 +4,8 @@ import { interval, map, Observable } from 'rxjs';
 @Controller()
 export class AppController {
   @Get()
-  getHello(): string {
-    return 'Hello World!';
+  getFreise(): string {
+    return '🍓';
   }
 
   @Sse('sse')
