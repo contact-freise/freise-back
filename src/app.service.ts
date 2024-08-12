@@ -41,20 +41,12 @@ export class AppService {
   async updloadFile(file: Express.Multer.File): Promise<string> {
     const storage = this.getAppStorage();
     const storageRef = ref(storage, file.filename);
-    return uploadBytes(storageRef, file.buffer)
-      .then((snapshot) => {
-        console.log('Uploaded file! ' + snapshot.ref.fullPath);
-        const downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${this.firebaseConfig.storageBucket}/o/${snapshot.ref.fullPath}?alt=media`;
-        return downloadUrl;
-      })
-      .catch((error) => {
-        console.error('Uh-oh, an error occurred! ' + error);
-        throw error;
-      });
+    const snapshot = await uploadBytes(storageRef, file.buffer)
+    return `https://firebasestorage.googleapis.com/v0/b/${this.firebaseConfig.storageBucket}/o/${snapshot.ref.fullPath}?alt=media`;
   }
 
   deleteFile(file: string) {
-    if(!file) return;
+    if (!file) return;
     const storage = this.getAppStorage();
     const desertRef = ref(storage, file);
 
@@ -63,7 +55,7 @@ export class AppService {
         console.log(`File ${file} deleted successfully`);
       })
       .catch((error) => {
-        if(error.name === 'FirebaseError' && error.code === 'storage/object-not-found') {
+        if (error.name === 'FirebaseError' && error.code === 'storage/object-not-found') {
           console.log(`File ${file} does not exist`);
           return;
         }

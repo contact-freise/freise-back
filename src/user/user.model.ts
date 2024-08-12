@@ -10,6 +10,9 @@ export class User extends Document {
   avatarUrl: string;
 
   @Prop()
+  backgroundUrl: string;
+
+  @Prop()
   email: string;
 
   @Prop()

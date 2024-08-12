@@ -19,7 +19,7 @@ export class UserController {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @Get()
   async findAll(): Promise<User[]> {
@@ -53,12 +53,13 @@ export class UserController {
     return { user, auth_token };
   }
 
-  @Post(':userId/avatar/upload')
+  @Post(':userId/:imgUrl/upload')
   @UseInterceptors(FileInterceptor('file'))
-  async updateAvartarUrl(
+  async updateUserImgUrl(
     @Param('userId') userId: string,
+    @Param('imgUrl') imgUrl: 'avatarUrl' | 'backgroundUrl',
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<{ downloadUrl: string }> {
-    return this.userService.updateAvartarUrl(userId, file);
+  ): Promise<User> {
+    return this.userService.updateUserImgUrl(userId, imgUrl, file);
   }
 }

@@ -43,17 +43,17 @@ export class UserService {
     return user;
   }
 
-  async updateAvartarUrl(
+  async updateUserImgUrl(
     userId: string,
+    imgUrl: 'avatarUrl' | 'backgroundUrl',
     file: Express.Multer.File,
-  ): Promise<{ downloadUrl: string }> {
+  ): Promise<User> {
     const user = await this.userModel.findById({ _id: userId }).exec();
     file.filename = `${uuidv4()}-${file.originalname}`;
     const downloadUrl = await this.appService.updloadFile(file);
-    await this.appService.deleteFile(user.avatarUrl);
-    await this.userModel
-      .findByIdAndUpdate(userId, { avatarUrl: downloadUrl })
+    await this.appService.deleteFile(user[imgUrl]);
+    return this.userModel
+      .findByIdAndUpdate(userId, { [imgUrl]: downloadUrl }, { new: true })
       .exec();
-    return { downloadUrl };
   }
 }
