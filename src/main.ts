@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import rateLimit from 'express-rate-limit';
 import { ValidationPipe } from '@nestjs/common';
 import * as cors from 'cors';
+const PORT = process.env.PORT || 8080;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,6 +21,8 @@ async function bootstrap() {
       'Too many requests from this IP, please try again after 15 minutes',
   });
   await app.use(apiLimiter);
-  await app.listen(3000);
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 }
 bootstrap();
