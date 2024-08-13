@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import rateLimit from 'express-rate-limit';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -10,11 +11,16 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-  app.enableCors({
-    origin: 'https://freise-c4cfd.firebaseapp.com',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
+  if (process.env.NODE_ENV === 'development') {
+    app.use(cors());
+  }
+  else {
+    app.enableCors({
+      origin: 'https://freise-c4cfd.firebaseapp.com',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      credentials: true,
+    });
+  }
 
   const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes

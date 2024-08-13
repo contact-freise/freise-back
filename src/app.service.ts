@@ -38,11 +38,23 @@ export class AppService {
     return this._storage;
   }
 
+  getStorageBucketUrl() {
+    return `https://firebasestorage.googleapis.com/v0/b/${this.firebaseConfig.storageBucket}/o`;
+  }
+
   async updloadFile(file: Express.Multer.File): Promise<string> {
     const storage = this.getAppStorage();
     const storageRef = ref(storage, file.filename);
-    const snapshot = await uploadBytes(storageRef, file.buffer);
-    return `https://firebasestorage.googleapis.com/v0/b/${this.firebaseConfig.storageBucket}/o/${snapshot.ref.fullPath}?alt=media`;
+    const snapshot = await uploadBytes(storageRef, file.buffer)
+      .then((snapshot) => {
+        console.log('Uploaded file!', snapshot);
+        return snapshot;
+      })
+      .catch((error) => {
+        console.error('Uh-oh, an error occurred! ' + error);
+        return error;
+      });
+    return `${this.getStorageBucketUrl()}/${encodeURIComponent(snapshot.ref?.fullPath)}?alt=media`;
   }
 
   deleteFile(file: string) {
@@ -63,7 +75,6 @@ export class AppService {
           return;
         }
         console.error('Uh-oh, an error occurred! ' + error);
-        throw error;
       });
   }
 }

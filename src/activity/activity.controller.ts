@@ -5,20 +5,20 @@ import { ActivityService } from './activity.service';
 
 @Controller('activity')
 export class ActivityController {
-  constructor(private readonly activityService: ActivityService) {}
+  constructor(private readonly activityService: ActivityService) { }
 
   @Get()
   async findAll(): Promise<Activity[]> {
     return this.activityService.findAll();
   }
 
-  @Get(':userId')
-  async findById(@Param('userId') userId: string): Promise<Activity[]> {
-    return this.activityService.findById(userId);
+  @Get(':user')
+  async findById(@Param('user') user: string): Promise<Activity[]> {
+    return this.activityService.findById(user);
   }
 
   @Post()
   async create(@Req() req: UserRequest): Promise<Activity> {
-    return this.activityService.create({ ...req.body, userId: req.user.id });
+    return this.activityService.create({ ...req.body, user: req.user.id });
   }
 }

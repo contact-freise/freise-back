@@ -5,7 +5,7 @@ import { User } from 'src/user/user.model';
 @Schema({ timestamps: true })
 export class Activity extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  userId: User;
+  user: User;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   mentionnedUserId: User;

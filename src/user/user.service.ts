@@ -11,22 +11,32 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly appService: AppService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
 
   async register(user: Partial<User>): Promise<User> {
+    const { username, email } = user;
+    const existingUser = await this.userModel.findOne({ $or: [{ username }, { email }] }).exec();
+    if (existingUser) {
+      throw new UnauthorizedException('User already exists');
+    }
+
+    const storageBucketUrl = this.appService.getStorageBucketUrl();
+    const randomHammy = Math.floor(Math.random() * 20);
     const newUser = new this.userModel({
       ...user,
+      avatarUrl: `${storageBucketUrl}/hammy%2Fhammy-pfp%20(${randomHammy}).png?alt=media`,
+      backgroundUrl: `${storageBucketUrl}/assets%2Fbackground.jpg?alt=media`,
       password: await hash(user.password, 10),
     });
     return newUser.save();
   }
 
-  async findById(userId: string): Promise<User> {
-    return this.userModel.findById(userId).exec();
+  async findById(user: string): Promise<User> {
+    return this.userModel.findById(user).exec();
   }
 
   async login(body): Promise<User> {
@@ -44,16 +54,16 @@ export class UserService {
   }
 
   async updateUserImgUrl(
-    userId: string,
+    user: string,
     imgUrl: 'avatarUrl' | 'backgroundUrl',
     file: Express.Multer.File,
   ): Promise<User> {
-    const user = await this.userModel.findById({ _id: userId }).exec();
-    file.filename = `${uuidv4()}-${file.originalname}`;
+    const user = await this.userModel.findById({ _id: user }).exec();
+    file.filename = `users/${user}/${uuidv4()}-${file.originalname}`;
     const downloadUrl = await this.appService.updloadFile(file);
     await this.appService.deleteFile(user[imgUrl]);
     return this.userModel
-      .findByIdAndUpdate(userId, { [imgUrl]: downloadUrl }, { new: true })
+      .findByIdAndUpdate(user, { [imgUrl]: downloadUrl }, { new: true })
       .exec();
   }
 }

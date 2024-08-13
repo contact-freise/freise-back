@@ -9,7 +9,7 @@ export class PostService {
   constructor(
     @InjectModel(Post.name) private readonly postModel: Model<Post>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
-  ) {}
+  ) { }
 
   async createPost(
     authorId: string,
@@ -37,12 +37,12 @@ export class PostService {
       .exec();
   }
 
-  async likePost(userId: string, postId: string): Promise<Post> {
+  async likePost(user: string, postId: string): Promise<Post> {
     const post = await this.postModel.findById(postId).populate('likes');
-    const user = await this.userModel.findById(userId);
+    const user = await this.userModel.findById(user);
 
     if (!user) {
-      throw new NotFoundException(`User ${userId} not found`);
+      throw new NotFoundException(`User ${user} not found`);
     }
 
     if (!post.likes.some((like) => like.equals(user))) {

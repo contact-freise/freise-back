@@ -7,20 +7,20 @@ import { Model } from 'mongoose';
 export class ActivityService {
   constructor(
     @InjectModel(Activity.name) private readonly activityModel: Model<Activity>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Activity[]> {
     return this.activityModel
       .find()
-      .populate('userId', 'username avatarUrl')
+      .populate('user', 'username avatarUrl')
       .sort({ createdAt: -1 })
       .exec();
   }
 
-  async findById(userId: string): Promise<Activity[]> {
+  async findById(user: string): Promise<Activity[]> {
     return this.activityModel
-      .find({ userId })
-      .populate('userId', 'username avatarUrl')
+      .find({ user })
+      .populate('user', 'username avatarUrl')
       .sort({ createdAt: -1 })
       .exec();
   }
