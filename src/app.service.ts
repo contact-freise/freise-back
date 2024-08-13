@@ -41,7 +41,7 @@ export class AppService {
   async updloadFile(file: Express.Multer.File): Promise<string> {
     const storage = this.getAppStorage();
     const storageRef = ref(storage, file.filename);
-    const snapshot = await uploadBytes(storageRef, file.buffer)
+    const snapshot = await uploadBytes(storageRef, file.buffer);
     return `https://firebasestorage.googleapis.com/v0/b/${this.firebaseConfig.storageBucket}/o/${snapshot.ref.fullPath}?alt=media`;
   }
 
@@ -55,7 +55,10 @@ export class AppService {
         console.log(`File ${file} deleted successfully`);
       })
       .catch((error) => {
-        if (error.name === 'FirebaseError' && error.code === 'storage/object-not-found') {
+        if (
+          error.name === 'FirebaseError' &&
+          error.code === 'storage/object-not-found'
+        ) {
           console.log(`File ${file} does not exist`);
           return;
         }

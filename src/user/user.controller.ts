@@ -19,7 +19,7 @@ export class UserController {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   @Get()
   async findAll(): Promise<User[]> {

@@ -1,5 +1,10 @@
 // src/app.module.ts
-import { Module, MiddlewareConsumer, RequestMethod, OnModuleInit } from '@nestjs/common';
+import {
+  Module,
+  MiddlewareConsumer,
+  RequestMethod,
+  OnModuleInit,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { ActivityModule } from './activity/activity.module';
@@ -11,7 +16,6 @@ import { TasksModule } from './tasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppService } from './app.service';
 import { PostModule } from './post/post.module';
-import { SecretManagerService } from './secret-manager.service';
 
 export const JWT_OPTIONS = { expiresIn: '60m', secret: process.env.JWT_SECRET };
 
@@ -29,12 +33,11 @@ export const JWT_OPTIONS = { expiresIn: '60m', secret: process.env.JWT_SECRET };
     PostModule,
   ],
   controllers: [AppController],
-  providers: [AuthMiddleware, AppService, SecretManagerService],
+  providers: [AuthMiddleware, AppService],
   exports: [AppService],
 })
 export class AppModule implements OnModuleInit {
-
-  constructor(private readonly secretManagerService: SecretManagerService) { }
+  constructor() {}
 
   configure(consumer: MiddlewareConsumer) {
     consumer
@@ -49,6 +52,6 @@ export class AppModule implements OnModuleInit {
   }
 
   async onModuleInit() {
-    await this.secretManagerService.loadSecretsIntoEnv();
+    console.log('💪 The App module has been initialized.');
   }
 }
