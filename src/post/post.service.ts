@@ -38,15 +38,15 @@ export class PostService {
   }
 
   async likePost(user: string, postId: string): Promise<Post> {
-    const post = await this.postModel.findById(postId).populate('likes');
-    const user = await this.userModel.findById(user);
+    const post = await this.postModel.findById(postId).populate('likes').exec();
+    const existingUser = await this.userModel.findById(user).exec();
 
     if (!user) {
       throw new NotFoundException(`User ${user} not found`);
     }
 
-    if (!post.likes.some((like) => like.equals(user))) {
-      post.likes.push(user);
+    if (!post.likes.some((like) => like.equals(existingUser))) {
+      post.likes.push(existingUser);
       await post.save();
     }
 

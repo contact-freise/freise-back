@@ -21,15 +21,17 @@ export class UserService {
     const { username, email } = user;
     const existingUser = await this.userModel.findOne({ $or: [{ username }, { email }] }).exec();
     if (existingUser) {
-      throw new UnauthorizedException('User already exists');
+      throw new UnauthorizedException('User or email already exists');
     }
 
     const storageBucketUrl = this.appService.getStorageBucketUrl();
     const randomHammy = Math.floor(Math.random() * 20);
+    const avatar = `/hammy/hammy-pfp (${randomHammy}).png`;
+    const background = `/background.jpg`;
     const newUser = new this.userModel({
       ...user,
-      avatarUrl: `${storageBucketUrl}/hammy%2Fhammy-pfp%20(${randomHammy}).png?alt=media`,
-      backgroundUrl: `${storageBucketUrl}/assets%2Fbackground.jpg?alt=media`,
+      avatarUrl: `${storageBucketUrl}/assets${encodeURIComponent(avatar)}?alt=media`,
+      backgroundUrl: `${storageBucketUrl}/assets${encodeURIComponent(background)}?alt=media`,
       password: await hash(user.password, 10),
     });
     return newUser.save();
@@ -58,10 +60,10 @@ export class UserService {
     imgUrl: 'avatarUrl' | 'backgroundUrl',
     file: Express.Multer.File,
   ): Promise<User> {
-    const user = await this.userModel.findById({ _id: user }).exec();
+    const existingUser = await this.userModel.findById({ _id: user }).exec();
     file.filename = `users/${user}/${uuidv4()}-${file.originalname}`;
     const downloadUrl = await this.appService.updloadFile(file);
-    await this.appService.deleteFile(user[imgUrl]);
+    await this.appService.deleteFile(existingUser[imgUrl]);
     return this.userModel
       .findByIdAndUpdate(user, { [imgUrl]: downloadUrl }, { new: true })
       .exec();

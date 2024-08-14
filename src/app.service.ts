@@ -58,7 +58,7 @@ export class AppService {
   }
 
   deleteFile(file: string) {
-    if (!file) return;
+    if (!file || file.includes('assets')) return;
     const storage = this.getAppStorage();
     const desertRef = ref(storage, file);
 
