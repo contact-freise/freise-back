@@ -22,13 +22,16 @@ export class User extends Document {
   dob: Date;
 
   @Prop()
+  age: number;
+
+  @Prop()
   gender: string;
 
   @Prop()
   role: string;
 
   @Prop()
-  bio: string;
+  about: string;
 
   @Prop()
   location: string;

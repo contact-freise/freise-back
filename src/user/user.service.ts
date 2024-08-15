@@ -19,8 +19,8 @@ export class UserService {
 
   async register(user: Partial<User>): Promise<User> {
     const { username, email } = user;
-    const existingUser = await this.userModel.findOne({ $or: [{ username }, { email }] }).exec();
-    if (existingUser) {
+    const foundUser = await this.userModel.findOne({ $or: [{ username }, { email }] }).exec();
+    if (foundUser) {
       throw new UnauthorizedException('User or email already exists');
     }
 
@@ -60,12 +60,18 @@ export class UserService {
     imgUrl: 'avatarUrl' | 'backgroundUrl',
     file: Express.Multer.File,
   ): Promise<User> {
-    const existingUser = await this.userModel.findById({ _id: user }).exec();
+    const foundUser = await this.userModel.findById({ _id: user }).exec();
     file.filename = `users/${user}/${uuidv4()}-${file.originalname}`;
     const downloadUrl = await this.appService.updloadFile(file);
-    await this.appService.deleteFile(existingUser[imgUrl]);
+    await this.appService.deleteFile(foundUser[imgUrl]);
     return this.userModel
       .findByIdAndUpdate(user, { [imgUrl]: downloadUrl }, { new: true })
+      .exec();
+  }
+
+  async updateUser(user: string, updatedFields: Partial<User>): Promise<User> {
+    return this.userModel
+      .findByIdAndUpdate(user, updatedFields, { new: true })
       .exec();
   }
 }

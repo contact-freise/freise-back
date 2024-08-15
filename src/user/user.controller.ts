@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Param,
   Body,
   UseInterceptors,
@@ -23,12 +24,14 @@ export class UserController {
 
   @Get()
   async findAll(): Promise<User[]> {
-    return this.userService.findAll();
+    const users = await this.userService.findAll();
+    return users.map(user => this._addAgeToUser(user));
   }
 
   @Get(':user')
   async findById(@Param('user') user: string): Promise<User> {
-    return this.userService.findById(user);
+    const foundUser = await this.userService.findById(user);
+    return this._addAgeToUser(foundUser);
   }
 
   @Post()
@@ -40,7 +43,7 @@ export class UserController {
       { id: newUser._id },
       { secret: this.configService.get<string>('JWT_SECRET') },
     );
-    return { user: newUser, auth_token };
+    return { user: this._addAgeToUser(newUser), auth_token }
   }
 
   @Post('login')
@@ -50,16 +53,41 @@ export class UserController {
       { id: user._id },
       { secret: this.configService.get<string>('JWT_SECRET') },
     );
-    return { user, auth_token };
+    return { user: this._addAgeToUser(user), auth_token };
   }
 
   @Post(':user/:imgUrl/upload')
   @UseInterceptors(FileInterceptor('file'))
   async updateUserImgUrl(
-    @Param('user') user: string,
+    @Param('user') user2: string,
     @Param('imgUrl') imgUrl: 'avatarUrl' | 'backgroundUrl',
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.userService.updateUserImgUrl(user, imgUrl, file);
+    const updatedUser = await this.userService.updateUserImgUrl(user2, imgUrl, file);
+    return this._addAgeToUser(updatedUser);
+  }
+
+  @Put(':user')
+  async updateUser(
+    @Param('user') user: string,
+    @Body() updatedFields: Partial<User>,
+  ): Promise<User> {
+    const updatedUser = await this.userService.updateUser(user, updatedFields);
+    return this._addAgeToUser(updatedUser);
+  }
+
+  private _addAgeToUser(user: User) {
+    if (!user.dob) {
+      user.age = null;
+      return user;
+    }
+    const today = new Date();
+    let age = today.getFullYear() - user.dob.getFullYear();
+    const monthDiff = today.getMonth() - user.dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < user.dob.getDate())) {
+      age--;
+    }
+    user.age = age;
+    return user;
   }
 }
