@@ -11,7 +11,7 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly appService: AppService,
-  ) { }
+  ) {}
 
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
@@ -19,7 +19,9 @@ export class UserService {
 
   async register(user: Partial<User>): Promise<User> {
     const { username, email } = user;
-    const foundUser = await this.userModel.findOne({ $or: [{ username }, { email }] }).exec();
+    const foundUser = await this.userModel
+      .findOne({ $or: [{ username }, { email }] })
+      .exec();
     if (foundUser) {
       throw new UnauthorizedException('User or email already exists');
     }

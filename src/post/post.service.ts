@@ -9,7 +9,7 @@ export class PostService {
   constructor(
     @InjectModel(Post.name) private readonly postModel: Model<Post>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
-  ) { }
+  ) {}
 
   async createPost(
     authorId: string,

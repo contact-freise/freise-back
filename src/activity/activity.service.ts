@@ -7,12 +7,14 @@ import { Model } from 'mongoose';
 export class ActivityService {
   constructor(
     @InjectModel(Activity.name) private readonly activityModel: Model<Activity>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Activity[]> {
     return this.activityModel
       .find()
       .populate('user', 'username avatarUrl')
+      .populate('mentionnedUser', 'username avatarUrl')
+      .populate('post', 'title content imageUrl likes')
       .sort({ createdAt: -1 })
       .exec();
   }
@@ -21,6 +23,8 @@ export class ActivityService {
     return this.activityModel
       .find({ user })
       .populate('user', 'username avatarUrl')
+      .populate('mentionnedUser', 'username avatarUrl')
+      .populate('post', 'title content imageUrl likes')
       .sort({ createdAt: -1 })
       .exec();
   }

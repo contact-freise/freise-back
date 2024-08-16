@@ -13,8 +13,7 @@ async function bootstrap() {
 
   if (process.env.NODE_ENV === 'development') {
     app.use(cors());
-  }
-  else {
+  } else {
     app.enableCors({
       origin: 'https://freise-c4cfd.firebaseapp.com',
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

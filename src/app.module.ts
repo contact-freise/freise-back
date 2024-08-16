@@ -45,8 +45,8 @@ export class AppModule implements OnModuleInit {
       .exclude(
         { path: '', method: RequestMethod.GET },
         { path: 'sse', method: RequestMethod.ALL },
-        { path: 'user', method: RequestMethod.POST },
-        { path: 'user/login', method: RequestMethod.POST },
+        { path: 'users', method: RequestMethod.POST },
+        { path: 'users/login', method: RequestMethod.POST },
       )
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }

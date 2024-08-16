@@ -7,8 +7,11 @@ export class Activity extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Post' })
+  post: User;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  mentionnedUserId: User;
+  mentionnedUser: User;
 
   @Prop({ type: { name: String, activityType: String } })
   action: {

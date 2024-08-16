@@ -47,7 +47,7 @@ export class AppService {
     const storageRef = ref(storage, file.filename);
     const snapshot = await uploadBytes(storageRef, file.buffer)
       .then((snapshot) => {
-        console.log('Uploaded file!', snapshot);
+        console.log('Uploaded file!', snapshot.ref?.fullPath);
         return snapshot;
       })
       .catch((error) => {

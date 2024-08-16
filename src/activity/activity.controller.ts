@@ -5,7 +5,7 @@ import { ActivityService } from './activity.service';
 
 @Controller('activity')
 export class ActivityController {
-  constructor(private readonly activityService: ActivityService) { }
+  constructor(private readonly activityService: ActivityService) {}
 
   @Get()
   async findAll(): Promise<Activity[]> {
