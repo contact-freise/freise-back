@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from './post.model';
@@ -34,7 +34,6 @@ export class PostService {
       .findById(post)
       .populate('author')
       .populate('likes')
-      .populate('dislikes')
-      .exec();
+      .populate('dislikes');
   }
 }

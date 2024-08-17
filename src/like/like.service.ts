@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Like } from './like.model';
 import { Post } from 'src/post/post.model';
 import { User } from 'src/user/user.model';
-
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class LikeService {
@@ -12,7 +12,7 @@ export class LikeService {
     @InjectModel(Like.name) private likeModel: Model<Like>,
     @InjectModel(Post.name) private postModel: Model<Post>,
     @InjectModel(User.name) private userModel: Model<User>,
-  ) { }
+  ) {}
 
   async likePost(user: string, post: string): Promise<Like> {
     const foundUser = await this.userModel.findById(user);
@@ -22,12 +22,20 @@ export class LikeService {
       throw new NotFoundException('User or Post not found');
     }
 
-    const foundLike = await this.likeModel.findOne({ user, post });
+    const foundLike = await this.likeModel.findOne({
+      user: new ObjectId(user),
+      post: new ObjectId(post),
+      type: 'like',
+    });
     if (foundLike) {
       throw new Error('You have already liked this post');
     }
 
-    const like = new this.likeModel({ user: foundUser, post: foundPost });
+    const like = new this.likeModel({
+      user: foundUser,
+      post: foundPost,
+      type: 'like',
+    });
     await like.save();
 
     await this.postModel.findByIdAndUpdate(post, {
@@ -42,7 +50,11 @@ export class LikeService {
   }
 
   async unlikePost(user: string, post: string): Promise<void> {
-    const like = await this.likeModel.findOneAndDelete({ user, post });
+    const like = await this.likeModel.findOne({
+      user: new ObjectId(user),
+      post: new ObjectId(post),
+      type: 'like',
+    });
     if (!like) {
       throw new NotFoundException('Like not found');
     }
@@ -55,6 +67,8 @@ export class LikeService {
     await this.userModel.findByIdAndUpdate(user, {
       $pull: { likes: like._id },
     });
+
+    await like.deleteOne();
   }
 
   async dislikePost(user: string, post: string): Promise<Like> {
@@ -65,12 +79,20 @@ export class LikeService {
       throw new NotFoundException('User or Post not found');
     }
 
-    const foundDislike = await this.likeModel.findOne({ user, post });
+    const foundDislike = await this.likeModel.findOne({
+      user: new ObjectId(user),
+      post: new ObjectId(post),
+      type: 'dislike',
+    });
     if (foundDislike) {
       throw new Error('You have already disliked this post');
     }
 
-    const dislike = new this.likeModel({ user: foundUser, post: foundPost });
+    const dislike = new this.likeModel({
+      user: foundUser,
+      post: foundPost,
+      type: 'dislike',
+    });
     await dislike.save();
 
     await this.postModel.findByIdAndUpdate(post, {
@@ -85,19 +107,24 @@ export class LikeService {
   }
 
   async undislikePost(user: string, post: string): Promise<void> {
-    const dislike = await this.likeModel.findOneAndDelete({ user, post });
+    const dislike = await this.likeModel.findOne({
+      user: new ObjectId(user),
+      post: new ObjectId(post),
+      type: 'dislike',
+    });
     if (!dislike) {
       throw new NotFoundException('Dislike not found');
     }
 
     await this.postModel.findByIdAndUpdate(post, {
-      $inc: { likesCount: -1 },
-      $pull: { likes: dislike._id },
+      $inc: { dislikesCount: -1 },
+      $pull: { dislikes: dislike._id },
     });
 
     await this.userModel.findByIdAndUpdate(user, {
-      $pull: { likes: dislike._id },
+      $pull: { dislikes: dislike._id },
     });
-  }
 
+    await dislike.deleteOne();
+  }
 }

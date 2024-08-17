@@ -14,14 +14,14 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+    return this.userModel.find();
   }
 
   async register(user: Partial<User>): Promise<User> {
     const { username, email } = user;
-    const foundUser = await this.userModel
-      .findOne({ $or: [{ username }, { email }] })
-      .exec();
+    const foundUser = await this.userModel.findOne({
+      $or: [{ username }, { email }],
+    });
     if (foundUser) {
       throw new UnauthorizedException('User or email already exists');
     }
@@ -40,13 +40,11 @@ export class UserService {
   }
 
   async findById(user: string): Promise<User> {
-    return this.userModel.findById(user).exec();
+    return this.userModel.findById(user);
   }
 
   async login(body): Promise<User> {
-    const user = await this.userModel
-      .findOne({ username: body.username })
-      .exec();
+    const user = await this.userModel.findOne({ username: body.username });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -62,18 +60,18 @@ export class UserService {
     imgUrl: 'avatarUrl' | 'backgroundUrl',
     file: Express.Multer.File,
   ): Promise<User> {
-    const foundUser = await this.userModel.findById({ _id: user }).exec();
+    const foundUser = await this.userModel.findById({ _id: user });
     file.filename = `users/${user}/${uuidv4()}-${file.originalname}`;
     const downloadUrl = await this.appService.updloadFile(file);
     await this.appService.deleteFile(foundUser[imgUrl]);
-    return this.userModel
-      .findByIdAndUpdate(user, { [imgUrl]: downloadUrl }, { new: true })
-      .exec();
+    return this.userModel.findByIdAndUpdate(
+      user,
+      { [imgUrl]: downloadUrl },
+      { new: true },
+    );
   }
 
   async updateUser(user: string, updatedFields: Partial<User>): Promise<User> {
-    return this.userModel
-      .findByIdAndUpdate(user, updatedFields, { new: true })
-      .exec();
+    return this.userModel.findByIdAndUpdate(user, updatedFields, { new: true });
   }
 }

@@ -12,6 +12,9 @@ export class Like extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Post', required: true })
   post: Post;
 
+  @Prop({ required: true })
+  type: 'like' | 'dislike';
+
   @Prop({ default: Date.now })
   createdAt: Date;
 }
