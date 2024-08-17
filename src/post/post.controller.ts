@@ -23,16 +23,9 @@ export class PostController {
     );
   }
 
-  @Get(':postId')
-  async getPostById(@Param('postId') postId: string): Promise<PostModel> {
-    return this.postService.getPostById(postId);
+  @Get(':post')
+  async getPostById(@Param('post') post: string): Promise<PostModel> {
+    return this.postService.getPostById(post);
   }
 
-  @Put(':postId/like')
-  async likePost(
-    @Req() req: UserRequest,
-    @Param('postId') postId: string,
-  ): Promise<PostModel> {
-    return this.postService.likePost(req.user.id, postId);
-  }
 }

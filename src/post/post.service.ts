@@ -29,27 +29,12 @@ export class PostService {
     return newPost.save();
   }
 
-  async getPostById(postId: string): Promise<Post> {
+  async getPostById(post: string): Promise<Post> {
     return this.postModel
-      .findById(postId)
+      .findById(post)
       .populate('author')
       .populate('likes')
+      .populate('dislikes')
       .exec();
-  }
-
-  async likePost(user: string, postId: string): Promise<Post> {
-    const post = await this.postModel.findById(postId).populate('likes').exec();
-    const foundUser = await this.userModel.findById(user).exec();
-
-    if (!user) {
-      throw new NotFoundException(`User ${user} not found`);
-    }
-
-    if (!post.likes.some((like) => like.equals(foundUser))) {
-      post.likes.push(foundUser);
-      await post.save();
-    }
-
-    return post;
   }
 }

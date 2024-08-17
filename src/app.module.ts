@@ -16,8 +16,16 @@ import { TasksModule } from './tasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppService } from './app.service';
 import { PostModule } from './post/post.module';
+import { LikeModule } from './like/like.module';
 
 export const JWT_OPTIONS = { expiresIn: '60m', secret: process.env.JWT_SECRET };
+
+const APP_MODULES = [
+  ActivityModule,
+  UserModule,
+  PostModule,
+  LikeModule,
+];
 
 @Module({
   imports: [
@@ -28,9 +36,7 @@ export const JWT_OPTIONS = { expiresIn: '60m', secret: process.env.JWT_SECRET };
     JwtModule.register(JWT_OPTIONS),
     ScheduleModule.forRoot(),
     TasksModule,
-    UserModule,
-    ActivityModule,
-    PostModule,
+    ...APP_MODULES,
   ],
   controllers: [AppController],
   providers: [AuthMiddleware, AppService],

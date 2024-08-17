@@ -20,7 +20,7 @@ export class UserController {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @Get()
   async findAll(): Promise<User[]> {
@@ -37,23 +37,23 @@ export class UserController {
   @Post()
   async register(
     @Body() user: Partial<User>,
-  ): Promise<{ user: User; auth_token: string }> {
+  ): Promise<{ user: User; authToken: string }> {
     const newUser = await this.userService.register(user);
-    const auth_token = this.jwtService.sign(
+    const authToken = this.jwtService.sign(
       { id: newUser._id },
       { secret: this.configService.get<string>('JWT_SECRET') },
     );
-    return { user: this._addAgeToUser(newUser), auth_token };
+    return { user: this._addAgeToUser(newUser), authToken };
   }
 
   @Post('login')
-  async login(@Body() body): Promise<{ user: User; auth_token: string }> {
+  async login(@Body() body): Promise<{ user: User; authToken: string }> {
     const user = await this.userService.login(body);
-    const auth_token = this.jwtService.sign(
+    const authToken = this.jwtService.sign(
       { id: user._id },
       { secret: this.configService.get<string>('JWT_SECRET') },
     );
-    return { user: this._addAgeToUser(user), auth_token };
+    return { user: this._addAgeToUser(user), authToken };
   }
 
   @Post(':user/:imgUrl/upload')

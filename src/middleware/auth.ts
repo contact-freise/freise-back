@@ -17,19 +17,19 @@ export class AuthMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async use(
     req: UserRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const token = req.headers['authorization'];
-    if (!token) {
+    const authToken = req.headers['authorization'];
+    if (!authToken) {
       throw new UnauthorizedException('No token provided');
     }
     try {
-      const user = this.jwtService.verify(token, {
+      const user = this.jwtService.verify(authToken, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
       req.user = user;

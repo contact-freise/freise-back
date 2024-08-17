@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { User } from 'src/user/user.model'; // Adjust the import path as necessary
+import { Like } from 'src/like/like.model';
+import { User } from 'src/user/user.model';
 
 @Schema({ timestamps: true })
 export class Post extends Document {
@@ -13,8 +14,17 @@ export class Post extends Document {
   @Prop({ required: true })
   content: string;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
-  likes: User[];
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }] })
+  likes: Like[];
+
+  @Prop({ default: 0 })
+  likesCount: number;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }] })
+  dislikes: Like[];
+
+  @Prop({ default: 0 })
+  dislikesCount: number;
 
   @Prop()
   tags: string[];
