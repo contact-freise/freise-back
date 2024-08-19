@@ -47,7 +47,7 @@ export class AppService {
     const storageRef = ref(storage, file.filename);
     const snapshot = await uploadBytes(storageRef, file.buffer)
       .then((snapshot) => {
-        console.log('Uploaded file!', snapshot.ref?.fullPath);
+        console.debug('Uploaded file!', snapshot.ref?.fullPath);
         return snapshot;
       })
       .catch((error) => {
@@ -64,14 +64,14 @@ export class AppService {
 
     deleteObject(desertRef)
       .then(() => {
-        console.log(`File ${file} deleted successfully`);
+        console.debug(`File ${file} deleted successfully`);
       })
       .catch((error) => {
         if (
           error.name === 'FirebaseError' &&
           error.code === 'storage/object-not-found'
         ) {
-          console.log(`File ${file} does not exist`);
+          console.error(`File ${file} does not exist`);
           return;
         }
         console.error('Uh-oh, an error occurred! ' + error);

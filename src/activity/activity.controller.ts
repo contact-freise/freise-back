@@ -1,20 +1,28 @@
-import { Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { Activity } from './activity.model';
-import { UserRequest } from 'src/middleware/auth';
 import { ActivityService } from './activity.service';
+import { PaginatedResult } from 'src/utils/paginated-result';
+import { UserRequest } from 'src/middleware/auth';
 
 @Controller('activity')
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) {}
 
   @Get()
-  async findAll(): Promise<Activity[]> {
-    return this.activityService.findAll();
+  async findAll(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ): Promise<PaginatedResult<Activity>> {
+    return this.activityService.find({}, page, limit);
   }
 
   @Get(':user')
-  async findById(@Param('user') user: string): Promise<Activity[]> {
-    return this.activityService.findById(user);
+  async findById(
+    @Param('user') user: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ): Promise<PaginatedResult<Activity>> {
+    return this.activityService.find({ user }, page, limit);
   }
 
   @Post()

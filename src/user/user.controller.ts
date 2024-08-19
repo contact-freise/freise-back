@@ -20,7 +20,7 @@ export class UserController {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   @Get()
   async findAll(): Promise<User[]> {
@@ -81,6 +81,9 @@ export class UserController {
   }
 
   private _addAgeToUser(user: User) {
+    if (!user) {
+      return null;
+    }
     if (!user.dob) {
       user.age = null;
       return user;
