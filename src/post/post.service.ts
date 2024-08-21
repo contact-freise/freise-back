@@ -5,6 +5,7 @@ import { Post } from './post.model';
 import { User } from 'src/user/user.model';
 import { AppService } from 'src/app.service';
 import { v4 as uuidv4 } from 'uuid';
+import { PaginatedResult } from 'src/utils/paginated-result';
 
 @Injectable()
 export class PostService {
@@ -35,11 +36,28 @@ export class PostService {
     return newPost.save();
   }
 
-  async getPostById(post: string): Promise<Post> {
-    return this.postModel
-      .findById(post)
-      .populate('author')
-      .populate('likes')
-      .populate('dislikes');
+  async getPosts(
+    query,
+    limit: number,
+    page: number,
+  ): Promise<PaginatedResult<Post>> {
+    const skip = (page - 1) * limit;
+    const [total, data] = await Promise.all([
+      this.postModel.countDocuments(query),
+      this.postModel
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .populate('author')
+        .populate('likes')
+        .populate('dislikes')
+        .sort({ createdAt: -1 }),
+    ]);
+    return {
+      data,
+      total,
+      page,
+      limit,
+    };
   }
 }

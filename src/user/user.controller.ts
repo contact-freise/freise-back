@@ -7,6 +7,7 @@ import {
   Body,
   UseInterceptors,
   UploadedFile,
+  Req,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './user.model';
@@ -14,6 +15,7 @@ import { UserService } from './user.service';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/app.const';
+import { UserRequest } from 'src/middleware/auth';
 
 @Controller('users')
 export class UserController {
@@ -26,13 +28,13 @@ export class UserController {
   @Get()
   async findAll(): Promise<User[]> {
     const users = await this.userService.findAll();
-    return users.map((user) => this._addAgeToUser(user));
+    return users.map((user) => this._addAge(user));
   }
 
   @Get(':user')
   async findById(@Param('user') user: string): Promise<User> {
     const foundUser = await this.userService.findById(user);
-    return this._addAgeToUser(foundUser);
+    return this._addAge(foundUser);
   }
 
   @Post()
@@ -44,7 +46,7 @@ export class UserController {
       { id: newUser._id },
       { secret: this.configService.get<string>('JWT_SECRET') },
     );
-    return { user: this._addAgeToUser(newUser), authToken };
+    return { user: this._addAge(newUser), authToken };
   }
 
   @Post('login')
@@ -54,34 +56,37 @@ export class UserController {
       { id: user._id },
       { secret: this.configService.get<string>('JWT_SECRET') },
     );
-    return { user: this._addAgeToUser(user), authToken };
+    return { user: this._addAge(user), authToken };
   }
 
-  @Post(':user/:imgUrl/upload')
+  @Post(':imgUrl/upload')
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async updateUserImgUrl(
-    @Param('user') user: string,
+    @Req() req: UserRequest,
     @Param('imgUrl') imgUrl: 'avatarUrl' | 'backgroundUrl',
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
     const updatedUser = await this.userService.updateUserImgUrl(
-      user,
+      req.user.id,
       imgUrl,
       file,
     );
-    return this._addAgeToUser(updatedUser);
+    return this._addAge(updatedUser);
   }
 
-  @Put(':user')
+  @Put()
   async updateUser(
-    @Param('user') user: string,
+    @Req() req: UserRequest,
     @Body() updatedFields: Partial<User>,
   ): Promise<User> {
-    const updatedUser = await this.userService.updateUser(user, updatedFields);
-    return this._addAgeToUser(updatedUser);
+    const updatedUser = await this.userService.updateUser(
+      req.user.id,
+      updatedFields,
+    );
+    return this._addAge(updatedUser);
   }
 
-  private _addAgeToUser(user: User) {
+  private _addAge(user: User) {
     if (!user) {
       return null;
     }
