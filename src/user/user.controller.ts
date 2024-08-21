@@ -13,6 +13,7 @@ import { User } from './user.model';
 import { UserService } from './user.service';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from 'src/app.const';
 
 @Controller('users')
 export class UserController {
@@ -57,7 +58,7 @@ export class UserController {
   }
 
   @Post(':user/:imgUrl/upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', multerOptions))
   async updateUserImgUrl(
     @Param('user') user: string,
     @Param('imgUrl') imgUrl: 'avatarUrl' | 'backgroundUrl',

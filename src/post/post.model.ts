@@ -11,7 +11,7 @@ export class Post extends Document {
   @Prop()
   title: string;
 
-  @Prop({ required: true })
+  @Prop()
   content: string;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }] })
@@ -25,9 +25,6 @@ export class Post extends Document {
 
   @Prop({ default: 0 })
   dislikesCount: number;
-
-  @Prop()
-  tags: string[];
 
   @Prop()
   imageUrl: string;

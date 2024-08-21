@@ -13,11 +13,8 @@ export class Activity extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   mentionnedUser: User;
 
-  @Prop({ type: { name: String, activityType: String } })
-  action: {
-    name: string;
-    activityType: string;
-  };
+  @Prop()
+  type: string;
 
   @Prop()
   browser: string;
