@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Like } from 'src/like/like.model';
 import { User } from 'src/user/user.model';
+import { Comment } from 'src/comment/comment.model';
 
 @Schema({ timestamps: true })
 export class Post extends Document {
@@ -28,6 +29,9 @@ export class Post extends Document {
 
   @Prop()
   imageUrl: string;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
+  comments: Comment[];
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
