@@ -28,7 +28,7 @@ export class Post extends Document {
   dislikesCount: number;
 
   @Prop()
-  imageUrl: string;
+  mediaUrl: string;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
   comments: Comment[];

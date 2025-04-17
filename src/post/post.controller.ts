@@ -18,7 +18,7 @@ import { PaginatedResult } from 'src/utils/paginated-result';
 
 @Controller('posts')
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService) { }
 
   @Post()
   @UseInterceptors(FileInterceptor('file', multerOptions))
@@ -40,8 +40,8 @@ export class PostController {
     @Query('limit') limit: number,
   ): Promise<PaginatedResult<PostModel>> {
     const query = isPicture
-      ? { author, imageUrl: { $ne: null } }
-      : { author, imageUrl: { $eq: null } };
+      ? { author, mediaUrl: { $ne: null } }
+      : { author, mediaUrl: { $eq: null } };
     return this.postService.getPosts(query, limit, page);
   }
 }

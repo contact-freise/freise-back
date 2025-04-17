@@ -13,7 +13,7 @@ export class PostService {
     @InjectModel(Post.name) private readonly postModel: Model<Post>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly appService: AppService,
-  ) {}
+  ) { }
 
   async createPost(
     authorId: string,
@@ -22,16 +22,16 @@ export class PostService {
     file: Express.Multer.File,
   ): Promise<Post> {
     const author = await this.userModel.findById(authorId);
-    let imageUrl;
+    let mediaUrl;
     if (file) {
       file.filename = `users/${authorId}/posts/${uuidv4()}-${file.originalname}`;
-      imageUrl = await this.appService.updloadFile(file);
+      mediaUrl = await this.appService.updloadFile(file);
     }
     const newPost = new this.postModel({
       author,
       title,
       content,
-      imageUrl,
+      mediaUrl,
     });
     return newPost.save();
   }

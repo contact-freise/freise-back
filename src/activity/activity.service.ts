@@ -8,7 +8,7 @@ import { PaginatedResult } from 'src/utils/paginated-result';
 export class ActivityService {
   constructor(
     @InjectModel(Activity.name) private readonly activityModel: Model<Activity>,
-  ) {}
+  ) { }
 
   async find(
     query,
@@ -26,7 +26,7 @@ export class ActivityService {
         .populate('mentionnedUser', 'username avatarUrl')
         .populate(
           'post',
-          'author title content imageUrl likes likesCount dislikes dislikesCount',
+          'author title content mediaUrl likes likesCount dislikes dislikesCount',
         )
         .sort({ createdAt: -1 }),
     ]);
