@@ -35,11 +35,11 @@ export class PostController {
   @Get(':author')
   async getPostsByAuthor(
     @Param('author') author: string,
-    @Query('isPicture') isPicture: boolean,
+    @Query('withMedia') withMedia: boolean,
     @Query('page') page: number,
     @Query('limit') limit: number,
   ): Promise<PaginatedResult<PostModel>> {
-    const query = isPicture
+    const query = withMedia
       ? { author, mediaUrl: { $ne: null } }
       : { author, mediaUrl: { $eq: null } };
     return this.postService.getPosts(query, limit, page);
