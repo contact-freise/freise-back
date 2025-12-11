@@ -47,10 +47,9 @@ async function bootstrap() {
     message:
       'Too many requests from this IP, please try again after 15 minutes',
   });
-  await app.use(apiLimiter);
+  app.use(apiLimiter);
   const PORT = process.env.PORT || 8080;
-  app.listen(PORT, async () => {
-    console.log(`🎧 Application is running on ${await app.getUrl()}`);
-  });
+  await app.listen(PORT, '0.0.0.0');
+  console.log(`🎧 Application is running on port ${PORT}`);
 }
 bootstrap();
