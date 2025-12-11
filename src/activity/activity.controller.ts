@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, Req, Body } from '@nestjs/common';
 import { Activity } from './activity.model';
 import { ActivityService } from './activity.service';
 import { PaginatedResult } from 'src/utils/paginated-result';
 import { UserRequest } from 'src/middleware/auth';
+import { CreateActivityDto } from 'src/common/dto/create-activity.dto';
 
 @Controller('activity')
 export class ActivityController {
@@ -26,7 +27,7 @@ export class ActivityController {
   }
 
   @Post()
-  async create(@Req() req: UserRequest): Promise<Activity> {
-    return this.activityService.create({ ...req.body, user: req.user.id });
+  async create(@Req() req: UserRequest, @Body() activityDto: CreateActivityDto): Promise<Activity> {
+    return this.activityService.create({ ...activityDto, user: req.user.id });
   }
 }

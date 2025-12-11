@@ -10,7 +10,7 @@ import { UserModule } from './user/user.module';
 import { ActivityModule } from './activity/activity.module';
 import { AuthMiddleware } from './middleware/auth';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { TasksModule } from './tasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -18,8 +18,6 @@ import { AppService } from './app.service';
 import { PostModule } from './post/post.module';
 import { LikeModule } from './like/like.module';
 import { CommentModule } from './comment/comment.module';
-
-export const JWT_OPTIONS = { expiresIn: '60m', secret: process.env.JWT_SECRET };
 
 const APP_MODULES = [
   ActivityModule,
@@ -35,7 +33,15 @@ const APP_MODULES = [
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
-    JwtModule.register(JWT_OPTIONS),
+    JwtModule.registerAsync({
+      global: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '60m' },
+      }),
+      inject: [ConfigService],
+    }),
     ScheduleModule.forRoot(),
     TasksModule,
     ...APP_MODULES,

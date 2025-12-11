@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.model';
 import { AppService } from 'src/app.service';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { hash, compare } from 'bcryptjs';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class UserService {
     return this.userModel.find();
   }
 
-  async register(user: Partial<User>): Promise<User> {
+  async register(user: Partial<User> & { username: string; email: string; password: string }): Promise<User> {
     const { username, email } = user;
     const foundUser = await this.userModel.findOne({
       $or: [{ username }, { email }],
@@ -39,16 +39,16 @@ export class UserService {
     return newUser.save();
   }
 
-  async findById(user: string): Promise<User> {
+  async findById(user: string): Promise<User | null> {
     return this.userModel.findById(user);
   }
 
-  async login(body): Promise<User> {
-    const user = await this.userModel.findOne({ username: body.username });
+  async login(loginDto: { username: string; password: string }): Promise<User> {
+    const user = await this.userModel.findOne({ username: loginDto.username });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const validPassword = await compare(body.password, user?.password);
+    const validPassword = await compare(loginDto.password, user?.password);
     if (!validPassword) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -59,11 +59,14 @@ export class UserService {
     user: string,
     imgUrl: 'avatarUrl' | 'backgroundUrl',
     file: Express.Multer.File,
-  ): Promise<User> {
-    const foundUser = await this.userModel.findById({ _id: user });
-    file.filename = `users/${user}/${uuidv4()}-${file.originalname}`;
+  ): Promise<User | null> {
+    const foundUser = await this.userModel.findById(user);
+    if (!foundUser) {
+      return null;
+    }
+    file.filename = `users/${user}/${randomUUID()}-${file.originalname}`;
     const downloadUrl = await this.appService.updloadFile(file);
-    await this.appService.deleteFile(foundUser[imgUrl]);
+    await this.appService.deleteFile(foundUser[imgUrl] || '');
     return this.userModel.findByIdAndUpdate(
       user,
       { [imgUrl]: downloadUrl },
@@ -71,7 +74,7 @@ export class UserService {
     );
   }
 
-  async updateUser(user: string, updatedFields: Partial<User>): Promise<User> {
+  async updateUser(user: string, updatedFields: Partial<User>): Promise<User | null> {
     return this.userModel.findByIdAndUpdate(user, updatedFields, { new: true });
   }
 }

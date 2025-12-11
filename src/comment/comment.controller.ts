@@ -6,19 +6,21 @@ import {
   Get,
   Delete,
   Req,
+  NotFoundException,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { UserRequest } from 'src/middleware/auth';
+import { CreateCommentDto } from 'src/common/dto/create-comment.dto';
 
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post()
-  async create(@Req() req: UserRequest, @Body() comment) {
+  async create(@Req() req: UserRequest, @Body() commentDto: CreateCommentDto) {
     return this.commentService.create({
-      ...comment,
-      user: req.user.id,
+      ...commentDto,
+      author: req.user.id,
     });
   }
 
@@ -29,6 +31,10 @@ export class CommentController {
 
   @Delete(':id')
   async delete(@Param('id') id: string) {
-    return this.commentService.delete(id);
+    const deleted = await this.commentService.delete(id);
+    if (!deleted) {
+      throw new NotFoundException('Comment not found');
+    }
+    return deleted;
   }
 }

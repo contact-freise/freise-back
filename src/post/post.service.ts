@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from './post.model';
 import { User } from 'src/user/user.model';
 import { AppService } from 'src/app.service';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { PaginatedResult } from 'src/utils/paginated-result';
 
 @Injectable()
@@ -19,12 +19,15 @@ export class PostService {
     authorId: string,
     title: string,
     content: string,
-    file: Express.Multer.File,
+    file?: Express.Multer.File,
   ): Promise<Post> {
     const author = await this.userModel.findById(authorId);
-    let mediaUrl;
+    if (!author) {
+      throw new NotFoundException('Author not found');
+    }
+    let mediaUrl: string | undefined;
     if (file) {
-      file.filename = `users/${authorId}/posts/${uuidv4()}-${file.originalname}`;
+      file.filename = `users/${authorId}/posts/${randomUUID()}-${file.originalname}`;
       mediaUrl = await this.appService.updloadFile(file);
     }
     const newPost = new this.postModel({
@@ -37,17 +40,18 @@ export class PostService {
   }
 
   async getPosts(
-    query,
-    limit: number,
-    page: number,
+    query: any,
+    limit: number = 10,
+    page: number = 1,
   ): Promise<PaginatedResult<Post>> {
-    const skip = (page - 1) * limit;
+    const skip = Math.max(0, (page - 1) * limit);
+    const normalizedLimit = Math.max(1, Math.min(limit, 100)); // Limite entre 1 et 100
     const [total, data] = await Promise.all([
       this.postModel.countDocuments(query),
       this.postModel
         .find(query)
         .skip(skip)
-        .limit(limit)
+        .limit(normalizedLimit)
         .populate('author')
         .populate('likes')
         .populate('dislikes')
@@ -57,7 +61,7 @@ export class PostService {
       data,
       total,
       page,
-      limit,
+      limit: normalizedLimit,
     };
   }
 }

@@ -1,44 +1,38 @@
 import {
   Injectable,
-  NestMiddleware,
+  CanActivate,
+  ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-
-export interface JwtUser {
-  id: string;
-}
-
-export type UserRequest = Request & {
-  user: JwtUser;
-};
+import { Request } from 'express';
+import { JwtUser, UserRequest } from 'src/middleware/auth';
 
 @Injectable()
-export class AuthMiddleware implements NestMiddleware {
+export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
-  async use(
-    req: UserRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    const authToken = req.headers['authorization'];
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest<UserRequest>();
+    const authToken = request.headers['authorization'];
+
     if (!authToken) {
       throw new UnauthorizedException('No token provided');
     }
+
     try {
-      const user = this.jwtService.verify(authToken, {
+      const user = this.jwtService.verify<JwtUser>(authToken, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
-      req.user = user;
-      next();
+      request.user = user;
+      return true;
     } catch (err) {
       throw new UnauthorizedException('Invalid token');
     }
   }
 }
+

@@ -45,36 +45,34 @@ export class AppService {
   async updloadFile(file: Express.Multer.File): Promise<string> {
     const storage = this.getAppStorage();
     const storageRef = ref(storage, file.filename);
-    const snapshot = await uploadBytes(storageRef, file.buffer)
-      .then((snapshot) => {
-        console.debug('Uploaded file!', snapshot.ref?.fullPath);
-        return snapshot;
-      })
-      .catch((error) => {
-        console.error('Uh-oh, an error occurred! ' + error);
-        return error;
-      });
-    return `${this.getStorageBucketUrl()}/${encodeURIComponent(snapshot.ref?.fullPath)}?alt=media`;
+    try {
+      const snapshot = await uploadBytes(storageRef, file.buffer);
+      console.debug('Uploaded file!', snapshot.ref?.fullPath);
+      return `${this.getStorageBucketUrl()}/${encodeURIComponent(snapshot.ref?.fullPath)}?alt=media`;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
   }
 
-  deleteFile(file: string) {
+  async deleteFile(file: string): Promise<void> {
     if (!file || file.includes('assets')) return;
     const storage = this.getAppStorage();
     const desertRef = ref(storage, file);
 
-    deleteObject(desertRef)
-      .then(() => {
-        console.debug(`File ${file} deleted successfully`);
-      })
-      .catch((error) => {
-        if (
-          error.name === 'FirebaseError' &&
-          error.code === 'storage/object-not-found'
-        ) {
-          console.error(`File ${file} does not exist`);
-          return;
-        }
-        console.error('Uh-oh, an error occurred! ' + error);
-      });
+    try {
+      await deleteObject(desertRef);
+      console.debug(`File ${file} deleted successfully`);
+    } catch (error: any) {
+      if (
+        error.name === 'FirebaseError' &&
+        error.code === 'storage/object-not-found'
+      ) {
+        console.debug(`File ${file} does not exist`);
+        return;
+      }
+      console.error('Error deleting file:', error);
+      throw error;
+    }
   }
 }

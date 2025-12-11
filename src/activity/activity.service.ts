@@ -11,17 +11,18 @@ export class ActivityService {
   ) { }
 
   async find(
-    query,
-    page: number,
-    limit: number,
+    query: any,
+    page: number = 1,
+    limit: number = 10,
   ): Promise<PaginatedResult<Activity>> {
-    const skip = (page - 1) * limit;
+    const skip = Math.max(0, (page - 1) * limit);
+    const normalizedLimit = Math.max(1, Math.min(limit, 100)); // Limite entre 1 et 100
     const [total, data] = await Promise.all([
       this.activityModel.countDocuments(query),
       this.activityModel
         .find(query)
         .skip(skip)
-        .limit(limit)
+        .limit(normalizedLimit)
         .populate('user', 'username avatarUrl')
         .populate('mentionnedUser', 'username avatarUrl')
         .populate(
@@ -34,7 +35,7 @@ export class ActivityService {
       data,
       total,
       page,
-      limit,
+      limit: normalizedLimit,
     };
   }
 

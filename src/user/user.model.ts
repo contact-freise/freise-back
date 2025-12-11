@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { Like } from 'src/like/like.model';
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -95,10 +94,10 @@ export class User extends Document {
   emailVerificationSent: Date;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }] })
-  likes: Like[];
+  likes: mongoose.Types.ObjectId[];
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }] })
-  dislikes: Like[];
+  dislikes: mongoose.Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

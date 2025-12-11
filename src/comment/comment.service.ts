@@ -20,7 +20,7 @@ export class CommentService {
       .populate('author', 'username avatarUrl');
   }
 
-  async delete(comment: string): Promise<Comment> {
+  async delete(comment: string): Promise<Comment | null> {
     return this.commentModel.findByIdAndDelete(comment);
   }
 }

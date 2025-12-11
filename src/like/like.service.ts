@@ -43,7 +43,7 @@ export class LikeService {
       $push: { likes: like._id },
     });
 
-    foundUser.likes.push(like._id as Like);
+    foundUser.likes.push(like._id);
     await foundUser.save();
 
     return like;
@@ -100,7 +100,7 @@ export class LikeService {
       $push: { dislikes: dislike._id },
     });
 
-    foundUser.dislikes.push(dislike._id as Like);
+    foundUser.dislikes.push(dislike._id);
     await foundUser.save();
 
     return dislike;
